@@ -36,7 +36,7 @@ yarn-error.log*
 !.env.example
 
 # prisma
-/prisma/dev.db
+# dev.db는 의도적으로 커밋함 — 공사 API로 이미 동기화한 실 데이터를 그대로 배포하기 위함
 /prisma/dev.db-journal
 
 # vercel
