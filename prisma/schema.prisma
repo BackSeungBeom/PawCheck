@@ -1,0 +1,57 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Facility {
+  id              String   @id            // contentid
+  title           String
+  contentTypeId   Int
+  addr1           String?
+  mapx            Float?
+  mapy            Float?
+  firstImage      String?
+  modifiedTime    String?                 // API의 modifiedtime, 캐시 비교용
+  rawAcmpyTypeCd     String?
+  rawAcmpyPsblCpam   String?
+  rawAcmpyNeedMtr    String?
+  rawEtcAcmpyInfo    String?
+  rawRelaPosesFclty  String?
+  rawRelaFrnshPrdlst String?
+  rawRelaPurcPrdlst  String?
+  rawRelaRntlPrdlst  String?
+  rawRelaAcdntRiskMtr String?             // 저장만 하고 UI 노출 금지 (03-data-spec.md §4)
+  syncedAt        DateTime @default(now())
+  policy          PetPolicy?
+  reviews         Review[]
+}
+
+model PetPolicy {
+  id                  String   @id @default(cuid())
+  facilityId          String   @unique
+  facility            Facility @relation(fields: [facilityId], references: [id])
+  indoorAllowed       String   // yes | no | partial | unknown
+  outdoorAllowed      String   // yes | no | unknown
+  breedRestriction    String   // none | dangerous_breed_conditional | unknown
+  muzzleRequired      Boolean
+  leashRequired       Boolean
+  needsManualCheck    Boolean
+  exceptionsJson      String?  // LLM 파싱 결과, JSON string
+  generalNotesJson    String?  // JSON string
+  parsedAt            DateTime @default(now())
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  facilityId   String
+  facility     Facility @relation(fields: [facilityId], references: [id])
+  nickname     String
+  visitedOn    DateTime
+  stillAccurate Boolean
+  comment      String?
+  createdAt    DateTime @default(now())
+}
